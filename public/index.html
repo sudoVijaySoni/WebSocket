@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Greek Soft Tech Task</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+
+  <!-- button to add socket component -->
+
+  <div class="row">
+    <div class="container m-2 p-2 col-6">
+      <button id="socketcomponent" class="btn btn-primary p-2 m-2" onclick="addNewcomponent(event)">
+        Add Socket Component
+      </button>
+      <div id="client-container" class="row col-12"></div>
+    </div>
+</div>
+</body>
+
+<!-- logic -->
+<script>
+  var clients = {};
+  const newClientCompo = document.getElementById("client-container");
+
+  //adding new component function
+  function addNewcomponent(event) {
+    var id = create_UUID();
+    newClientCompo.innerHTML += `
+    <div id="${id}" class="col-12 col-md-6 mb-3">
+  <div class="card">
+    <h5 class="card-header">Client Id: ${id} <span class="float-right" onclick="deleteClient('${id}')"><i
+          class="fa fa-trash" aria-hidden="true"></i></span>
+    </h5>
+  <div class="card-body">
+      <div class="form-row">
+        <div class="col-12 col-md-6 d-flex justify-content-center">
+          <button type="button" onclick="connect('${id}')" class="btn btn-success btn-block">Connect</button>
+        </div>
+        <div class="col-12 col-md-6 d-flex justify-content-center ">
+          <button type="button" onclick="disconnect('${id}')" class="btn btn-danger btn-block">Disconnect</button>
+        </div>
+        <div class="col-12 col-md-8 offset-md-2 mt-2">
+          <div class="input-group input-group-md mb-3 btn-block">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-md">Message: </span>
+            </div>
+            <input id="socketMessage${id}" type="text" class="form-control" aria-label="Message"
+              aria-describedby="inputGroup-sizing-md">
+          </div>
+        </div>
+      </div>
+  </div>
+  </div>
+</div>`;
+    document.body.appendChild(newClientCompo);
+  }
+
+
+  //client connect for random number
+  function connect(id) {
+
+    //checking if already connected
+    if (clients[id]) {
+      alert(`Client with id: ${id} is already connected`);
+      return true;
+    }
+
+    //establish socket connection
+    const socket = new WebSocket("ws://localhost:3000");
+    socket.addEventListener("open", function (event) {
+      clients[id] = event.target;
+      console.log(`Client With Id ${id} Subscribed!`);
+    });
+
+    //component listens for number feed
+    socket.addEventListener("message", (event) => {
+      document.querySelectorAll("#socketMessage" + id)[0].value = event.data;
+    });
+  }
+
+  //client disconnect for random number
+  function disconnect(id) {
+    if (!clients[id]) {
+      alert(`Client With ${id} Already In Disconnected State`);
+      return true;
+    }
+    clients[id].close();
+    console.log(`Client with Id ${id} Unsubscribed!`)
+    document.querySelectorAll("#socketMessage" + id)[0].value = "";
+    delete clients[id];
+  }
+
+  //deleting socket component
+  function deleteClient(id) {
+    if (clients[id]) {
+      alert(`Please Disconnect client : ${id} To Delete`);
+      return true;
+    }
+    var clientObj = document.getElementById(`${id}`);
+    clientObj.remove();
+  }
+
+  //generating unique ID
+  function create_UUID() {
+    var dt = new Date().getTime();
+    var uuid = "xxxxxxxx".replace(/[xy]/g, function (c) {
+      var r = (dt + Math.random() * 16) % 16 | 0;
+      dt = Math.floor(dt / 16);
+      return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+    });
+    return uuid;
+  }
+
+
+
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+  </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+  </script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+  </script>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "assignment",
+  "version": "1.0.0",
+  "description": "This is a assignment to WebSocketServer",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vijay S. Soni",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "env": "^0.0.2",
+    "express": "^4.17.2",
+    "nodemon": "^2.0.15",
+    "ws": "^8.4.2"
+  }
+}
